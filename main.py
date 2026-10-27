@@ -212,13 +212,16 @@ async def api():
             surl=surl,
         )
 
-    except Exception as exc:
+        except Exception as exc:
         logger.exception(
-            "Unexpected error during resolution"
+            "Unexpected error during resolution: %s",
+            type(exc).__name__,
         )
 
+        error_message = str(exc).strip() or type(exc).__name__
+
         return _error(
-            f"Unexpected error: {exc}",
+            f"Unexpected error ({type(exc).__name__}): {error_message}",
             500,
             surl=surl,
         )
