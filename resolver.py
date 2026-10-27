@@ -139,7 +139,51 @@ class TeraboxResolver:
         sep = "&" if "?" in self.proxy else "?"
         return f"{self.proxy}{sep}url={quote(terabox_url, safe='')}"
 
-    async def _fetch_json(self, session: aiohttp.ClientSession, url: str) -> Dict[str, Any]:
+    async def _fetch_json(
+        self,
+        session: aiohttp.ClientSession,
+        url: str,
+    ) -> Dict[str, Any]:
+        """Fetch JSON and report which upstream request failed."""
+
+        upstream = self._build_upstream_url(url)
+
+        # Log the endpoint without query parameters or tokens.
+        parsed = urlparse(upstream)
+        endpoint = f"{parsed.scheme}://{parsed.netloc}{parsed.path}"
+
+        try:
+            async with session.get(
+                upstream,
+                headers=self.headers,
+                timeout=self.timeout,
+            ) as resp:
+                text = await resp.text()
+
+                if resp.status != 200:
+                    raise RuntimeError(
+                        f"Upstream HTTP {resp.status} at {endpoint}: "
+                        f"{text[:200]}"
+                    )
+
+                try:
+                    return json.loads(text)
+                except json.JSONDecodeError as exc:
+                    raise RuntimeError(
+                        f"Invalid JSON from {endpoint}: {text[:200]}"
+                    ) from exc
+
+        except asyncio.TimeoutError as exc:
+            raise RuntimeError(
+                f"Request timed out after "
+                f"{self.timeout.total}s at {endpoint}"
+            ) from exc
+
+        except aiohttp.ClientError as exc:
+            raise RuntimeError(
+                f"Network error at {endpoint}: "
+                f"{type(exc).__name__}: {exc}"
+            ) from exc
         """GET a URL and return parsed JSON, raising on HTTP errors."""
         upstream = self._build_upstream_url(url)
         async with session.get(upstream, headers=self.headers, timeout=self.timeout) as resp:
