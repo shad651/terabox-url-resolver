@@ -31,7 +31,7 @@ CACHE_TTL_SECONDS = 600
 _cache: Dict[str, tuple] = {}
 
 # ---------------------------------------------------------------------- #
-# Flask app
+# Logging
 # ---------------------------------------------------------------------- #
 logging.basicConfig(
     level=LOG_LEVEL,
@@ -40,7 +40,9 @@ logging.basicConfig(
 
 logger = logging.getLogger("terabox-api")
 
-# HTML files are stored in the project root directory.
+# ---------------------------------------------------------------------- #
+# Flask app
+# ---------------------------------------------------------------------- #
 app = Flask(
     __name__,
     template_folder=".",
@@ -48,7 +50,6 @@ app = Flask(
 )
 
 app.config["TESTING"] = False
-
 
 # ---------------------------------------------------------------------- #
 # Helpers
@@ -212,7 +213,7 @@ async def api():
             surl=surl,
         )
 
-        except Exception as exc:
+    except Exception as exc:
         logger.exception(
             "Unexpected error during resolution: %s",
             type(exc).__name__,
