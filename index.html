@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Terabox Streaming Resolver</title>
+  <style>
+    :root {
+      --bg: #f7f9fc;
+      --card: #ffffff;
+      --border: #e4e8ef;
+      --text: #1a2233;
+      --text-muted: #6b7589;
+      --accent: #2563eb;
+      --accent-hover: #1d4ed8;
+      --accent-soft: #dbeafe;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --radius: 10px;
+      --shadow: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+      --shadow-lg: 0 10px 25px rgba(15, 23, 42, 0.08), 0 4px 10px rgba(15, 23, 42, 0.04);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+      min-height: 100vh;
+    }
+
+    .nav {
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 600;
+      font-size: 16px;
+    }
+    .nav-brand .logo {
+      width: 28px;
+      height: 28px;
+      background: var(--accent);
+      border-radius: 7px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: 14px;
+    }
+    .nav-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      margin-left: 24px;
+      font-size: 14px;
+      font-weight: 500;
+      transition: color 0.15s;
+    }
+    .nav-links a:hover { color: var(--accent); }
+
+    .container {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 48px 24px 80px;
+    }
+
+    .hero { text-align: center; margin-bottom: 40px; }
+    .hero h1 {
+      font-size: 34px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+    }
+    .hero p {
+      color: var(--text-muted);
+      font-size: 17px;
+      max-width: 560px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 28px;
+      margin-bottom: 24px;
+    }
+
+    .status-bar {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+    .status-chip {
+      flex: 1;
+      min-width: 200px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: var(--shadow);
+    }
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .status-dot.ok { background: var(--success); box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15); }
+    .status-dot.warn { background: var(--warning); box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.15); }
+    .status-dot.error { background: var(--danger); box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.15); }
+    .status-chip .label { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+    .status-chip .value { font-size: 14px; font-weight: 600; }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+    .input-group { position: relative; margin-bottom: 18px; }
+    input[type="text"], textarea, select {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: inherit;
+      background: white;
+      color: var(--text);
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    input[type="text"]:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-soft);
+    }
+    textarea { resize: vertical; min-height: 80px; font-family: ui-monospace, "SF Mono", Menlo, monospace; }
+
+    .button-row { display: flex; gap: 10px; align-items: center; }
+    button {
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.05s;
+      font-family: inherit;
+    }
+    button:hover:not(:disabled) { background: var(--accent-hover); }
+    button:active:not(:disabled) { transform: translateY(1px); }
+    button:disabled { background: #94a3b8; cursor: not-allowed; }
+    button.secondary { background: white; color: var(--text); border: 1px solid var(--border); }
+    button.secondary:hover:not(:disabled) { background: var(--bg); }
+
+    .result {
+      margin-top: 20px;
+      padding: 18px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      display: none;
+    }
+    .result.visible { display: block; }
+    .result h3 {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 12px;
+    }
+    .result-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 8px 0;
+      border-bottom: 1px dashed var(--border);
+      font-size: 14px;
+      gap: 12px;
+    }
+    .result-row:last-child { border-bottom: none; }
+    .result-row .key { color: var(--text-muted); min-width: 130px; font-weight: 500; }
+    .result-row .val { font-family: ui-monospace, "SF Mono", Menlo, monospace; word-break: break-all; text-align: right; flex: 1; }
+    .result-row .val a { color: var(--accent); text-decoration: none; }
+    .result-row .val a:hover { text-decoration: underline; }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 9px;
+      border-radius: 5px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+    }
+    .badge.success { background: rgba(16, 185, 129, 0.12); color: var(--success); }
+    .badge.warning { background: rgba(245, 158, 11, 0.12); color: var(--warning); }
+    .badge.danger  { background: rgba(239, 68, 68, 0.12); color: var(--danger); }
+
+    .spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255, 255, 255, 0.4);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .copy-btn {
+      background: transparent;
+      color: var(--accent);
+      border: 1px solid var(--accent-soft);
+      padding: 4px 10px;
+      font-size: 12px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-left: 8px;
+      font-weight: 500;
+    }
+    .copy-btn:hover { background: var(--accent-soft); }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--text);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      opacity: 0;
+      transition: opacity 0.2s, transform 0.2s;
+      z-index: 100;
+    }
+    .toast.visible { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    .footer {
+      text-align: center;
+      padding: 24px;
+      color: var(--text-muted);
+      font-size: 13px;
+      border-top: 1px solid var(--border);
+      margin-top: 60px;
+    }
+    .footer a { color: var(--accent); text-decoration: none; }
+
+    .config-banner {
+      background: rgba(245, 158, 11, 0.08);
+      border: 1px solid rgba(245, 158, 11, 0.25);
+      color: #92400e;
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-size: 14px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .config-banner svg { flex-shrink: 0; margin-top: 2px; }
+
+    @media (max-width: 640px) {
+      .nav { padding: 12px 16px; }
+      .container { padding: 28px 16px 60px; }
+      .hero h1 { font-size: 26px; }
+      .hero p { font-size: 15px; }
+      .card { padding: 20px; }
+      .result-row { flex-direction: column; align-items: flex-start; }
+      .result-row .val { text-align: left; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <div class="nav-brand">
+      <div class="logo">T</div>
+      <span>Terabox Streaming Resolver</span>
+    </div>
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="/docs">API Docs</a>
+      <a href="/health" target="_blank">Health</a>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="hero">
+      <h1>Extract Streaming URLs from Terabox Links</h1>
+      <p>Paste any Terabox share link below and get a direct HLS streaming URL that works in VLC, MPV, or any M3U8-capable player.</p>
+    </div>
+
+    {% if not cookie_set %}
+    <div class="config-banner">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+        <line x1="12" y1="9" x2="12" y2="13"></line>
+        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+      </svg>
+      <div>
+        <strong>Cookie not configured.</strong> The API is running but resolution will fail until you set <code>COOKIE_JSON</code> in your <code>.env</code> file. See the <a href="/docs" style="color: inherit; text-decoration: underline;">API Docs</a> for setup instructions.
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="status-bar">
+      <div class="status-chip">
+        <div class="status-dot {{ 'ok' if cookie_set else 'warn' }}"></div>
+        <div>
+          <div class="label">Cookie</div>
+          <div class="value">{{ 'Configured' if cookie_set else 'Missing' }}</div>
+        </div>
+      </div>
+      <div class="status-chip">
+        <div class="status-dot {{ 'ok' if proxy_set else 'ok' }}"></div>
+        <div>
+          <div class="label">Proxy</div>
+          <div class="value">{{ 'Active' if proxy_set else 'Direct mode' }}</div>
+        </div>
+      </div>
+      <div class="status-chip">
+        <div class="status-dot ok"></div>
+        <div>
+          <div class="label">API Status</div>
+          <div class="value">Running</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="input-group">
+        <label for="url">Terabox Share URL</label>
+        <input type="text" id="url" placeholder="https://1024terabox.com/s/1LNr3tyl5pI5KUM8BecGtyQ" />
+      </div>
+
+      <div class="input-group">
+        <label for="mode">Response Mode</label>
+        <select id="mode">
+          <option value="stream">stream — Streaming URL only (lightweight)</option>
+          <option value="info">info — Full file metadata + streaming URL</option>
+        </select>
+      </div>
+
+      <div class="button-row">
+        <button id="resolveBtn" onclick="resolve()">
+          <span id="btnText">Resolve Streaming URL</span>
+        </button>
+        <button class="secondary" onclick="clearResult()">Clear</button>
+      </div>
+
+      <div id="result" class="result">
+        <h3>Result</h3>
+        <div id="resultBody"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="font-size: 14px; font-weight: 600; margin-bottom: 14px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">
+        Quick Examples
+      </h3>
+      <div style="display: grid; gap: 8px; font-size: 13px; font-family: ui-monospace, monospace;">
+        <div style="padding: 10px; background: var(--bg); border-radius: 6px; border: 1px solid var(--border);">
+          curl "http://localhost:5000/api?url=https://1024terabox.com/s/YOUR_SURL"
+        </div>
+        <div style="padding: 10px; background: var(--bg); border-radius: 6px; border: 1px solid var(--border);">
+          curl "http://localhost:5000/api?url=https://1024terabox.com/s/YOUR_SURL&mode=info"
+        </div>
+        <div style="padding: 10px; background: var(--bg); border-radius: 6px; border: 1px solid var(--border);">
+          ffplay "$(curl -s 'http://localhost:5000/api?url=YOUR_URL' | jq -r .data.streaming_url)"
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    Built for local development &middot; <a href="/docs">API Documentation</a> &middot; <a href="/health">Health Check</a>
+  </div>
+
+  <div id="toast" class="toast">Copied to clipboard</div>
+
+  <script>
+    async function resolve() {
+      const url = document.getElementById('url').value.trim();
+      const mode = document.getElementById('mode').value;
+      const btn = document.getElementById('resolveBtn');
+      const btnText = document.getElementById('btnText');
+      const result = document.getElementById('result');
+      const body = document.getElementById('resultBody');
+
+      if (!url) {
+        showToast('Please paste a Terabox URL first');
+        return;
+      }
+
+      btn.disabled = true;
+      btnText.innerHTML = '<span class="spinner"></span>Resolving...';
+      result.classList.add('visible');
+      body.innerHTML = '<div style="text-align:center; padding:20px; color: var(--text-muted);">Contacting Terabox...</div>';
+
+      try {
+        const apiUrl = `/api?url=${encodeURIComponent(url)}&mode=${mode}`;
+        const resp = await fetch(apiUrl);
+        const json = await resp.json();
+
+        if (!json.success) {
+          body.innerHTML = `
+            <div class="result-row">
+              <span class="key">Status</span>
+              <span class="val"><span class="badge danger">Error</span></span>
+            </div>
+            <div class="result-row">
+              <span class="key">Message</span>
+              <span class="val">${escapeHtml(json.error || 'Unknown error')}</span>
+            </div>
+            ${json.surl ? `<div class="result-row"><span class="key">surl</span><span class="val">${escapeHtml(json.surl)}</span></div>` : ''}
+          `;
+          return;
+        }
+
+        const d = json.data;
+        let html = '';
+
+        html += `<div class="result-row">
+          <span class="key">Status</span>
+          <span class="val"><span class="badge success">Resolved ${d.cached ? '• Cached' : ''}</span></span>
+        </div>`;
+
+        if (d.filename) {
+          html += `<div class="result-row"><span class="key">Filename</span><span class="val">${escapeHtml(d.filename)}</span></div>`;
+        }
+        if (typeof d.is_video !== 'undefined') {
+          html += `<div class="result-row"><span class="key">Is Video</span><span class="val">${d.is_video ? 'Yes' : 'No'}</span></div>`;
+        }
+        if (d.size) {
+          html += `<div class="result-row"><span class="key">Size</span><span class="val">${formatBytes(d.size)}</span></div>`;
+        }
+        if (d.streaming_url) {
+          html += `<div class="result-row"><span class="key">Streaming URL</span>
+            <span class="val">
+              <a href="${escapeHtml(d.streaming_url)}" target="_blank">Open M3U8</a>
+              <button class="copy-btn" onclick="copyText('${escapeJs(d.streaming_url)}')">Copy</button>
+            </span></div>`;
+        } else {
+          html += `<div class="result-row"><span class="key">Streaming URL</span>
+            <span class="val"><span class="badge warning">Not available</span> (file may not be a video)</span></div>`;
+        }
+        if (mode === 'info' && d.download_url) {
+          html += `<div class="result-row"><span class="key">Download URL</span>
+            <span class="val">
+              <a href="${escapeHtml(d.download_url)}" target="_blank">Direct download</a>
+              <button class="copy-btn" onclick="copyText('${escapeJs(d.download_url)}')">Copy</button>
+            </span></div>`;
+        }
+        if (mode === 'info' && d.surl) {
+          html += `<div class="result-row"><span class="key">surl</span><span class="val">${escapeHtml(d.surl)}</span></div>`;
+        }
+
+        body.innerHTML = html;
+      } catch (err) {
+        body.innerHTML = `<div class="result-row"><span class="key">Error</span><span class="val">${escapeHtml(err.message)}</span></div>`;
+      } finally {
+        btn.disabled = false;
+        btnText.textContent = 'Resolve Streaming URL';
+      }
+    }
+
+    function clearResult() {
+      document.getElementById('url').value = '';
+      document.getElementById('result').classList.remove('visible');
+      document.getElementById('resultBody').innerHTML = '';
+    }
+
+    function copyText(text) {
+      navigator.clipboard.writeText(text).then(() => showToast('Copied to clipboard'));
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('visible');
+      setTimeout(() => t.classList.remove('visible'), 1800);
+    }
+
+    function formatBytes(b) {
+      if (!b) return '0 B';
+      const u = ['B', 'KB', 'MB', 'GB', 'TB'];
+      const i = Math.floor(Math.log(b) / Math.log(1024));
+      return (b / Math.pow(1024, i)).toFixed(2) + ' ' + u[i];
+    }
+
+    function escapeHtml(s) {
+      return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+    function escapeJs(s) {
+      return String(s || '').replace(/\\/g,'\\\\').replace(/'/g, "\\'");
+    }
+
+    document.getElementById('url').addEventListener('keypress', e => {
+      if (e.key === 'Enter') resolve();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>API Documentation — Terabox Streaming Resolver</title>
+  <style>
+    :root {
+      --bg: #f7f9fc;
+      --card: #ffffff;
+      --border: #e4e8ef;
+      --text: #1a2233;
+      --text-muted: #6b7589;
+      --accent: #2563eb;
+      --accent-soft: #dbeafe;
+      --code-bg: #1e293b;
+      --code-text: #e2e8f0;
+      --radius: 10px;
+      --shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    .nav {
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 600;
+      font-size: 16px;
+    }
+    .nav-brand .logo {
+      width: 28px; height: 28px;
+      background: var(--accent);
+      border-radius: 7px;
+      display: flex; align-items: center; justify-content: center;
+      color: white; font-weight: 700; font-size: 14px;
+    }
+    .nav-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      margin-left: 24px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .nav-links a:hover, .nav-links a.active { color: var(--accent); }
+
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 40px 24px 80px;
+    }
+    h1 { font-size: 28px; margin-bottom: 8px; letter-spacing: -0.02em; }
+    h2 {
+      font-size: 20px;
+      margin: 36px 0 14px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    h3 { font-size: 16px; margin: 24px 0 10px; }
+    p { margin-bottom: 12px; color: var(--text); }
+    code {
+      background: var(--accent-soft);
+      color: #1e40af;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+      font-size: 0.9em;
+    }
+    pre {
+      background: var(--code-bg);
+      color: var(--code-text);
+      padding: 16px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+      font-size: 13px;
+      margin: 12px 0;
+      line-height: 1.55;
+    }
+    pre code { background: none; color: inherit; padding: 0; }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 28px;
+      margin-bottom: 24px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0;
+      font-size: 14px;
+    }
+    th, td {
+      text-align: left;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    th {
+      background: var(--bg);
+      font-weight: 600;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+    }
+    td code { font-size: 0.85em; }
+    .type { color: var(--accent); font-weight: 600; font-size: 12px; font-family: ui-monospace, monospace; }
+    .required { color: #ef4444; font-weight: 600; font-size: 11px; }
+    .optional { color: var(--text-muted); font-size: 11px; }
+
+    .endpoint {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .method {
+      padding: 5px 12px;
+      background: var(--success, #10b981);
+      color: white;
+      border-radius: 5px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    .method.get { background: #10b981; }
+    .path { font-family: ui-monospace, monospace; font-size: 15px; font-weight: 600; }
+
+    .alert {
+      padding: 14px 18px;
+      border-radius: 8px;
+      font-size: 14px;
+      margin: 16px 0;
+      display: flex;
+      gap: 10px;
+    }
+    .alert.info { background: rgba(37, 99, 235, 0.08); border: 1px solid rgba(37, 99, 235, 0.25); color: #1e40af; }
+    .alert.warn { background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.25); color: #92400e; }
+    .alert code { background: rgba(0,0,0,0.08); color: inherit; }
+
+    .footer {
+      text-align: center;
+      padding: 24px;
+      color: var(--text-muted);
+      font-size: 13px;
+      border-top: 1px solid var(--border);
+    }
+    .footer a { color: var(--accent); text-decoration: none; }
+
+    @media (max-width: 640px) {
+      .container { padding: 24px 16px 60px; }
+      h1 { font-size: 24px; }
+      pre { font-size: 12px; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <div class="nav-brand">
+      <div class="logo">T</div>
+      <span>Terabox Streaming Resolver</span>
+    </div>
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="/docs" class="active">API Docs</a>
+      <a href="/health" target="_blank">Health</a>
+    </div>
+  </nav>
+
+  <div class="container">
+    <h1>API Documentation</h1>
+    <p style="color: var(--text-muted); margin-bottom: 24px;">
+      A lightweight REST API for extracting HLS streaming URLs from Terabox share links.
+      {% if not cookie_set %}
+      <br><strong style="color: #92400e;">⚠ Cookie is not configured</strong> — see setup instructions below.
+      {% endif %}
+    </p>
+
+    <div class="card">
+      <div class="endpoint">
+        <span class="method get">GET</span>
+        <span class="path">/api</span>
+      </div>
+      <p>Resolve a Terabox share URL and return the HLS streaming URL.</p>
+
+      <h3>Query Parameters</h3>
+      <table>
+        <thead>
+          <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>url</code></td>
+            <td><span class="type">string</span></td>
+            <td><span class="required">Yes</span></td>
+            <td>The Terabox share URL. Supported domains: terabox.com, 1024terabox.com, teraboxapp.com, 4funbox.com, nephobox.com, and more.</td>
+          </tr>
+          <tr>
+            <td><code>mode</code></td>
+            <td><span class="type">string</span></td>
+            <td><span class="optional">No</span></td>
+            <td>Response shape. <code>stream</code> (default) returns only streaming-relevant fields. <code>info</code> returns full file metadata including size, path, surl, and download URL.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Example Request</h3>
+<pre><code>curl "http://localhost:5000/api?url=https://1024terabox.com/s/1LNr3tyl5pI5KUM8BecGtyQ&mode=stream"</code></pre>
+
+      <h3>Response — stream mode (200 OK)</h3>
+<pre><code>{
+  "success": true,
+  "data": {
+    "streaming_url": "https://d-jp0xc-vd.pcs.baidu.com/file/.../playlist.m3u8?...",
+    "filename": "movie_720p.mp4",
+    "is_video": true,
+    "cached": false
+  }
+}</code></pre>
+
+      <h3>Response — info mode (200 OK)</h3>
+<pre><code>{
+  "success": true,
+  "data": {
+    "streaming_url": "https://d-jp0xc-vd.pcs.baidu.com/.../playlist.m3u8?...",
+    "download_url": "https://d-jp0xc-vd.pcs.baidu.com/file/...?...",
+    "filename": "movie_720p.mp4",
+    "size": 524288000,
+    "path": "/movie_720p.mp4",
+    "surl": "1LNr3tyl5pI5KUM8BecGtyQ",
+    "is_video": true,
+    "cached": false
+  }
+}</code></pre>
+
+      <h3>Error Responses</h3>
+<pre><code>// 400 — Missing or invalid input
+{
+  "success": false,
+  "error": "Missing required parameter: url"
+}
+
+// 502 — Upstream resolution failed
+{
+  "success": false,
+  "error": "Failed to resolve: Terabox share-list error: errno=-20 msg=..."
+}</code></pre>
+    </div>
+
+    <h2>Other Endpoints</h2>
+    <div class="card">
+      <div class="endpoint">
+        <span class="method get">GET</span>
+        <span class="path">/health</span>
+      </div>
+      <p>Returns service health and configuration status. Useful for monitoring.</p>
+<pre><code>{
+  "status": "ok",
+  "cookie_configured": true,
+  "proxy_configured": false,
+  "cache_size": 0,
+  "cache_ttl_seconds": 600
+}</code></pre>
+    </div>
+
+    <h2>Setup — Getting your <code>ndus</code> Cookie</h2>
+    <div class="card">
+      <p>The API needs your Terabox session cookie to authenticate against the Terabox API. To get it:</p>
+      <ol style="margin-left: 20px; margin-bottom: 16px;">
+        <li style="margin-bottom: 8px;">Log in to <a href="https://www.terabox.com" target="_blank">terabox.com</a> or <a href="https://1024terabox.com" target="_blank">1024terabox.com</a> in your browser.</li>
+        <li style="margin-bottom: 8px;">Open Developer Tools (F12) → <strong>Application</strong> tab → <strong>Storage</strong> → <strong>Cookies</strong>.</li>
+        <li style="margin-bottom: 8px;">Select the Terabox domain and find the cookie named <code>ndus</code>.</li>
+        <li style="margin-bottom: 8px;">Copy its <strong>Value</strong>.</li>
+        <li style="margin-bottom: 8px;">Open the <code>.env</code> file in the project root.</li>
+        <li style="margin-bottom: 8px;">Paste it as: <code>COOKIE_JSON=your_ndus_token_here</code></li>
+        <li>Restart the server.</li>
+      </ol>
+
+      <div class="alert info">
+        <strong>Tip:</strong> You can also pass a full JSON cookie object if you have one:
+        <code>COOKIE_JSON={"ndus": "...", "BDCLND": "..."}</code>
+      </div>
+    </div>
+
+    <h2>Configuration Reference</h2>
+    <div class="card">
+      <p>All configuration is via environment variables (or a <code>.env</code> file):</p>
+      <table>
+        <thead>
+          <tr><th>Variable</th><th>Default</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>COOKIE_JSON</code></td>
+            <td>—</td>
+            <td>Your Terabox <code>ndus</code> token, or a JSON object of cookies. <strong>Required</strong> for resolution to work.</td>
+          </tr>
+          <tr>
+            <td><code>PROXY_URL</code></td>
+            <td>—</td>
+            <td>Optional Cloudflare Worker / reverse proxy URL. All upstream Terabox calls are routed through <code>&lt;PROXY_URL&gt;?url=&lt;terabox_url&gt;</code>.</td>
+          </tr>
+          <tr>
+            <td><code>PORT</code></td>
+            <td><code>5000</code></td>
+            <td>Port to listen on.</td>
+          </tr>
+          <tr>
+            <td><code>HOST</code></td>
+            <td><code>0.0.0.0</code></td>
+            <td>Bind address. Use <code>127.0.0.1</code> for local-only access.</td>
+          </tr>
+          <tr>
+            <td><code>DEBUG</code></td>
+            <td><code>0</code></td>
+            <td>Set to <code>1</code> to enable Flask debug mode (auto-reload on file changes).</td>
+          </tr>
+          <tr>
+            <td><code>LOG_LEVEL</code></td>
+            <td><code>INFO</code></td>
+            <td>Logging verbosity. One of <code>DEBUG</code>, <code>INFO</code>, <code>WARNING</code>, <code>ERROR</code>.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>Usage Examples</h2>
+    <div class="card">
+      <h3>1. Basic curl request</h3>
+<pre><code>curl "http://localhost:5000/api?url=https://1024terabox.com/s/1LNr3tyl5pI5KUM8BecGtyQ"</code></pre>
+
+      <h3>2. Get the streaming URL and pipe it into ffplay</h3>
+<pre><code>STREAM_URL=$(curl -s "http://localhost:5000/api?url=https://1024terabox.com/s/1LNr3tyl5pI5KUM8BecGtyQ" \
+  | python -c "import sys, json; print(json.load(sys.stdin)['data']['streaming_url'])")
+
+ffplay "$STREAM_URL"</code></pre>
+
+      <h3>3. Python client (requests)</h3>
+<pre><code>import requests
+
+resp = requests.get("http://localhost:5000/api", params={
+    "url": "https://1024terabox.com/s/1LNr3tyl5pI5KUM8BecGtyQ",
+    "mode": "info",
+})
+data = resp.json()
+if data["success"]:
+    print("Streaming URL:", data["data"]["streaming_url"])
+    print("Filename:", data["data"]["filename"])
+    print("Size:", data["data"]["size"], "bytes")</code></pre>
+
+      <h3>4. JavaScript (browser / Node)</h3>
+<pre><code>const url = "https://1024terabox.com/s/1LNr3tyl5pI5KUM8BecGtyQ";
+const resp = await fetch(`http://localhost:5000/api?url=${encodeURIComponent(url)}&mode=stream`);
+const json = await resp.json();
+
+if (json.success) {
+  console.log("Streaming URL:", json.data.streaming_url);
+  // Play it with hls.js, video.js, or paste into VLC
+}</code></pre>
+    </div>
+
+    <div class="alert warn">
+      <div>
+        <strong>Terms of Service notice:</strong> This tool bypasses the normal Terabox web flow. Use it only for accessing your own files or files you have permission to access. The author is not responsible for misuse.
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    Terabox Streaming Resolver &middot; Built for local development &middot; <a href="/">Back to Home</a>
+  </div>
+</body>
+</html>
